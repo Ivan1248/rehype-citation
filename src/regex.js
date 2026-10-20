@@ -45,8 +45,13 @@ export const fullCitationRE =
  * * 12, 54, 12-23
  * * 1, 1-4
  * * 3
+ * * 2.6, 12.2.1 (dotted section numbers)
+ * * 1–2 (en dash ranges)
  * * NEW NEW NEW: Now also matches Roman numerals as sometimes used in forewords!
+ *
+ * A locator must end at a word boundary, so that e.g. the "c" in "cf." is not interpreted as a
+ * Roman numeral.
  *
  * @var {RegExp}
  */
-export const locatorRE = /^(?:[\d, -]*\d|[ivxlcdm, -]*[ivxlcdm])/i
+export const locatorRE = /^(?:[\d., –-]*\d|[ivxlcdm, –-]*[ivxlcdm])(?![\p{L}\d])/iu

@@ -202,6 +202,15 @@ rehypeCitationTest('handle prefix, suffix and locator', async () => {
   assert.is(result, expected)
 })
 
+rehypeCitationTest('handle dotted locators and en dash ranges', async () => {
+  const result = await processHtml(
+    dedent`<div>[@Nash1950, sec. 2.6] [@Nash1950, sec. 1–2] @Nash1950 [sec. 12.2.1]</div>`,
+    { suppressBibliography: true }
+  )
+  const expected = dedent`<div><span class="" id="citation--nash1950--1">(Nash, 1950, sec. 2.6)</span> <span class="" id="citation--nash1950--2">(Nash, 1950, secs. 1–2)</span> <span class="" id="citation--nash1950--3">Nash (1950, sec. 12.2.1)</span></div>`
+  assert.is(result, expected)
+})
+
 rehypeCitationTest('suppress author', async () => {
   const result = await processHtml(dedent`<div>[-@Nash1950]</div>`, { suppressBibliography: true })
   const expected = dedent`<div><span class="" id="citation--nash1950--1">(1950)</span></div>`
