@@ -68,8 +68,7 @@ const locatorLabels = {
 }
 
 /**
- * Joins a suffix to a citation part with the separator, or directly if the suffix starts with
- * punctuation, e.g. "2.1" + ", Proposition 2" or "5-6" + "and further".
+ * Joins a suffix to a citation, with a separator if the suffix does not start with punctuation.
  *
  * @param {string} text
  * @param {string} suffix

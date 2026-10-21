@@ -52,7 +52,7 @@ export const fullCitationRE =
  * @var {RegExp}
  */
 export const locatorRE = (() => {
-  // Letters of any script and digits, for use in a character class
+  // Letters of any script and digits
   const letterOrDigit = String.raw`\p{L}\d`
   // A Roman numeral or a range of them, e.g. "xii" or "iv-x"
   const romanNumeralRange = String.raw`[ivxlcdm]+(?:[–-][ivxlcdm]+)*`
