@@ -243,6 +243,22 @@ rehypeCitationTest('keep a suffix without a locator', async () => {
   assert.is(result, expected)
 })
 
+rehypeCitationTest('keep a suffix without a locator in an in-text citation', async () => {
+  const result = await processHtml(dedent`<div>@Nash1950 [Theorem 1]</div>`, {
+    suppressBibliography: true,
+  })
+  const expected = dedent`<div><span class="" id="citation--nash1950--1">Nash (1950, Theorem 1)</span></div>`
+  assert.is(result, expected)
+})
+
+rehypeCitationTest('render the suffix of an in-text citation once', async () => {
+  const result = await processHtml(dedent`<div>@Nash1950 [sec. 2.1, Proposition 2]</div>`, {
+    suppressBibliography: true,
+  })
+  const expected = dedent`<div><span class="" id="citation--nash1950--1">Nash (1950, sec. 2.1, Proposition 2)</span></div>`
+  assert.is(result, expected)
+})
+
 rehypeCitationTest('do not take letters in a word for a locator', async () => {
   const result = await processHtml(
     dedent`<div>[@Nash1950, cf. Kakutani] [@Nash1950, mixed strategies]</div>`,

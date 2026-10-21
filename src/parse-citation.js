@@ -173,11 +173,26 @@ export const parseCitation = (regexMatch) => {
   } else {
     // We have an in-text citation, so we can take a shortcut
     isComposite = true
+    let { locator, label, suffix } = parseSuffix(optionalSuffix, false)
+    // In composite mode, citeproc-js renders the suffix after both the author and the locator, e.g.
+    // "Nash, Theorem 1 (1950, Theorem 1)", but renders the locator only once. We move the suffix
+    // into the locator to avoid duplication. If there is no locator, we set its label to "none", 
+    // which is not a CSL term, so citeproc-js omits the label.
+    if (suffix) {
+      if (locator === undefined) {
+        locator = suffix.replace(/^,\s*/, '')
+        label = 'none'
+      } else {
+        locator = joinSuffix(locator, suffix, ' ')
+      }
+    }
     entries.push({
       prefix: undefined,
       id: inTextCitation.replace(/{(.+)}/, '$1'),
       'suppress-author': inTextSuppressAuthor !== undefined,
-      ...parseSuffix(optionalSuffix, false), // Populate more depending on the suffix
+      locator,
+      label,
+      suffix: undefined,
     })
   }
   return [entries, isComposite]
