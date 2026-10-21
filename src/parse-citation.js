@@ -68,6 +68,18 @@ const locatorLabels = {
 }
 
 /**
+ * Joins a suffix to a citation part with the separator, or directly if the suffix starts with
+ * punctuation, e.g. "2.1" + ", Proposition 2" or "5-6" + "and further".
+ *
+ * @param {string} text
+ * @param {string} suffix
+ * @param {string} separator
+ * @return {string}
+ */
+const joinSuffix = (text, suffix, separator) =>
+  /^[,;:.]/.test(suffix) ? text + suffix : text + separator + suffix
+
+/**
  * Parses a given citation string and return entries and isComposite flag required for cite-proc.
  * Adapted from https://github.com/Zettlr/Zettlr/blob/develop/source/common/util/extract-citations.ts
  *
@@ -145,7 +157,10 @@ export const parseCitation = (regexMatch) => {
       }
 
       if (explicitLocator === undefined && explicitLocatorInSuffix === undefined) {
-        thisCitation.suffix = suffix
+        // Like in Pandoc, a suffix without a locator is separated from the citation with a
+        // comma, e.g. "(Nash, 1950, Theorem 1)".
+        thisCitation.suffix =
+          locator === undefined && suffix !== undefined ? joinSuffix('', suffix, ', ') : suffix
       } else if (suffix !== undefined && thisCitation.locator !== undefined) {
         // If we're here, we should not change the suffix, but parseSuffix may
         // have put something into the suffix return. If we're here, that will
@@ -243,6 +258,8 @@ function parseSuffix(suffix, containsLocator) {
     if (match !== null) {
       retValue.locator = match[0] // Full match is the locator
       retValue.suffix = suffix.substr(match[0].length).trim() // The rest is the suffix.
+    } else if (suffix !== '') {
+      retValue.suffix = suffix // If there is no locator, the whole text is the suffix
     }
   }
 

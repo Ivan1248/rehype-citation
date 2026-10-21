@@ -235,6 +235,23 @@ rehypeCitationTest('match the label that is followed by a locator', async () => 
   assert.is(result, expected)
 })
 
+rehypeCitationTest('keep a suffix without a locator', async () => {
+  const result = await processHtml(dedent`<div>[@Nash1950, Theorem 1]</div>`, {
+    suppressBibliography: true,
+  })
+  const expected = dedent`<div><span class="" id="citation--nash1950--1">(Nash, 1950, Theorem 1)</span></div>`
+  assert.is(result, expected)
+})
+
+rehypeCitationTest('do not take letters in a word for a locator', async () => {
+  const result = await processHtml(
+    dedent`<div>[@Nash1950, cf. Kakutani] [@Nash1950, mixed strategies]</div>`,
+    { suppressBibliography: true }
+  )
+  const expected = dedent`<div><span class="" id="citation--nash1950--1">(Nash, 1950, cf. Kakutani)</span> <span class="" id="citation--nash1950--2">(Nash, 1950, mixed strategies)</span></div>`
+  assert.is(result, expected)
+})
+
 rehypeCitationTest('suppress author', async () => {
   const result = await processHtml(dedent`<div>[-@Nash1950]</div>`, { suppressBibliography: true })
   const expected = dedent`<div><span class="" id="citation--nash1950--1">(1950)</span></div>`
