@@ -198,20 +198,31 @@ function parseSuffix(suffix, containsLocator) {
   for (const label in locatorLabels) {
     for (const natural of locatorLabels[label]) {
       if (suffix.toLowerCase().startsWith(natural.toLowerCase())) {
+        const naturalIsAWord =
+          !/\p{L}$/u.test(natural) || !/^\p{L}/u.test(suffix.substr(natural.length))
+        if (!naturalIsAWord) {
+          // A label must end at a word end, so that e.g. "ZX81" is not read as the label "Z"
+          continue
+        }
+
+        const rest = suffix.substr(natural.length).trim()
+        const match = locatorRE.exec(rest)
+        if (!containsLocator && match === null) {
+          // Like in Pandoc, a label must be followed by a locator, so that e.g. "p." in
+          // "p. and others" is not read as the "page" label without a locator
+          continue
+        }
+
         retValue.label = label
         if (containsLocator) {
           // The suffix actually is the full locator, we just had to extract
           // the label from it. There is no remaining suffix.
-          retValue.locator = suffix.substr(natural.length).trim()
+          retValue.locator = rest
         } else {
           // The caller indicated that this is a regular suffix, so we must also
           // extract the locator from what is left after label extraction.
-          retValue.suffix = suffix.substr(natural.length).trim()
-          const match = locatorRE.exec(retValue.suffix)
-          if (match !== null) {
-            retValue.locator = match[0] // Extract the full match
-            retValue.suffix = retValue.suffix.substr(match[0].length).trim()
-          }
+          retValue.locator = match[0] // Extract the full match
+          retValue.suffix = rest.substr(match[0].length).trim()
         }
 
         return retValue // Early exit

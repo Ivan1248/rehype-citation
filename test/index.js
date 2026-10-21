@@ -227,6 +227,14 @@ rehypeCitationTest('handle locators with letters and digits', async () => {
   assert.is(result, expected)
 })
 
+rehypeCitationTest('match the label that is followed by a locator', async () => {
+  const result = await processHtml(dedent`<div>[@Nash1950, sections 1-2] [@Nash1950, §§ 3]</div>`, {
+    suppressBibliography: true,
+  })
+  const expected = dedent`<div><span class="" id="citation--nash1950--1">(Nash, 1950, secs. 1–2)</span> <span class="" id="citation--nash1950--2">(Nash, 1950, sec. 3)</span></div>`
+  assert.is(result, expected)
+})
+
 rehypeCitationTest('suppress author', async () => {
   const result = await processHtml(dedent`<div>[-@Nash1950]</div>`, { suppressBibliography: true })
   const expected = dedent`<div><span class="" id="citation--nash1950--1">(1950)</span></div>`
