@@ -211,6 +211,22 @@ rehypeCitationTest('handle dotted locators and en dash ranges', async () => {
   assert.is(result, expected)
 })
 
+rehypeCitationTest('end a locator at a word without a digit', async () => {
+  const result = await processHtml(dedent`<div>[@Nash1950, p. 3, 5 and more]</div>`, {
+    suppressBibliography: true,
+  })
+  const expected = dedent`<div><span class="" id="citation--nash1950--1">(Nash, 1950, pp. 3, 5 and more)</span></div>`
+  assert.is(result, expected)
+})
+
+rehypeCitationTest('handle locators with letters and digits', async () => {
+  const result = await processHtml(dedent`<div>[@Nash1950, sec. A.3] [@Nash1950, p. 123A]</div>`, {
+    suppressBibliography: true,
+  })
+  const expected = dedent`<div><span class="" id="citation--nash1950--1">(Nash, 1950, sec. A.3)</span> <span class="" id="citation--nash1950--2">(Nash, 1950, p. 123A)</span></div>`
+  assert.is(result, expected)
+})
+
 rehypeCitationTest('suppress author', async () => {
   const result = await processHtml(dedent`<div>[-@Nash1950]</div>`, { suppressBibliography: true })
   const expected = dedent`<div><span class="" id="citation--nash1950--1">(1950)</span></div>`

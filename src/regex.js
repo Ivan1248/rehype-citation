@@ -45,13 +45,25 @@ export const fullCitationRE =
  * * 12, 54, 12-23
  * * 1, 1-4
  * * 3
- * * 2.6, 12.2.1 (dotted section numbers)
+ * * 2.6, 12.2.1, A.3, 123A (like in Pandoc, any word with a digit)
  * * 1–2 (en dash ranges)
  * * NEW NEW NEW: Now also matches Roman numerals as sometimes used in forewords!
  *
- * A locator must end at a word boundary, so that e.g. the "c" in "cf." is not interpreted as a
- * Roman numeral.
- *
  * @var {RegExp}
  */
-export const locatorRE = /^(?:[\d., –-]*\d|[ivxlcdm, –-]*[ivxlcdm])(?![\p{L}\d])/iu
+export const locatorRE = (() => {
+  // Letters of any script and digits, for use in a character class
+  const letterOrDigit = String.raw`\p{L}\d`
+  // A Roman numeral or a range of them, e.g. "xii" or "iv-x"
+  const romanNumeralRange = String.raw`[ivxlcdm]+(?:[–-][ivxlcdm]+)*`
+  // The end of a word: no letter or digit follows, so that e.g. the "c" in "cf." or the "D" in
+  // "D-Z" is not taken for a Roman numeral
+  const wordEnd = String.raw`(?![.–-]*[${letterOrDigit}])`
+  // A word which contains a digit, e.g. "A.3", "123A" or "33-35", or is a Roman numeral (range).
+  // Pandoc accepts Roman numerals only after a locator label such as "p." or "sec.", but here
+  // they are always accepted (by the `|${romanNumeralRange}` part).
+  const locatorWord = String.raw`(?:[${letterOrDigit}.–-]*\d(?:[${letterOrDigit}.–-]*[${letterOrDigit}])?|${romanNumeralRange})${wordEnd}`
+  // Like in Pandoc, words are separated by spaces with an optional comma before them, so that
+  // e.g. "3, 5" is one locator, but "12 - 14" ends after "12"
+  return new RegExp(String.raw`^${locatorWord}(?:,? *${locatorWord})*`, 'iu')
+})()
